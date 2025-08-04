@@ -154,7 +154,7 @@ class GUI:
         self.search_header.configure(text=f"Trips on HE604")
         results = []
         for i in trips:
-            if i.vehicle_search("AM604") != None:
+            if i.vehicle_search("HE604") != None:
                 results.append(i.vehicle_search("HE604"))
         output = f"{len(results)} trips on HE604"
         for o in range(len(results)):

@@ -8,6 +8,8 @@ V0.0.3 - Set up basic GUI components including themes
 V0.0.4 - Set up frames for multiple windows
 V0.0.5 - Created classes and import script
 V0.1.0 - Set up basic search demo using HE604
+V0.1.1 - Added more search functions and made general adjustments
+V1.0.0 - Functional search, minimum viable product
 '''
 
 #Libraries
@@ -16,7 +18,7 @@ import csv
 import datetime
 
 #Settings
-THEME = "Huia"
+THEME = "Metlink"
 SOURCE = "trips.csv"
 
 #Column names
@@ -34,9 +36,9 @@ HEADING = {"AT":"#00A7E5", "Metlink":"#00364a", "Huia":"#282829", "MAXX":"#ffc02
 HEADINGTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Huia":"#ffc90e", "MAXX":"#ffffff"}
 SUBHEADING = {"AT":"#2d7caf", "Metlink":"#cddc2a", "Huia":"#323d48", "MAXX":"#f4661d"}
 SUBHEADINGTEXT = {"AT":"#ffffff", "Metlink":"#00364a", "Huia":"#ffffff", "MAXX":"#ffffff"}
-BUTTON = {"AT":"#00A7E5", "Metlink":"#406978", "Huia":"#ffc90e", "MAXX":"#00a3e6"}
-BUTTONTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Huia":"#282829", "MAXX":"#ffffff"}
-FONT = {"Heading":"Arial 40 bold", "Subheading":"Arial 25 bold", "Button":"Arial 18", "Text":"Arial 12"}
+BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Huia":"#ffc90e", "MAXX":"#00a3e6"}
+BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Huia":"#282829", "MAXX":"#ffffff"}
+FONT = {"Heading":"Arial 40 bold", "Subheading":"Arial 25 bold", "Button":"Arial 14", "Text":"Arial 12"}
 
 #Classes
 class Trip:
@@ -51,15 +53,34 @@ class Trip:
     
     def vehicle_search(self, search):
         if self.vehicle == search:
-            return f"{self.route} - {self.date}"
+            return f"{self.route} - {self.date} - ID:{self.service_id}"
         else:
             return None
+        
+    def route_search(self, search):
+        if self.route == search:
+            return f"{self.vehicle} - {self.date} - ID:{self.service_id}"
+        else:
+            return None
+        
+    def date_search(self, search):
+        if self.date == search:
+            return f"{self.vehicle} - {self.date} - ID:{self.service_id}"
+        else:
+            return None
+        
+    def id_search(self, search):
+        if self.service_id == search:
+            return self
+        else:
+            return None    
 
 #Load data
 with open(SOURCE) as tripfile:
     trips = []
     for i in csv.DictReader(tripfile):
         trips.append(Trip(i['Vehicle'], i['Route'], i['Date'], i['Service No.']))    
+    
 
 #Main program
 class GUI:
@@ -116,19 +137,57 @@ class GUI:
         frame.grid(row=0, column=0, sticky="nsew")
         
         self.search_title = Label(frame, text="Search", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.search_title.grid(row=0, column=0, columnspan = 2, sticky="nsew")
+        self.search_title.grid(row=0, column=0, columnspan = 4, sticky="nsew")
         
         self.search_header = Label(frame, text="", bg=SUBHEADING[THEME], fg=SUBHEADINGTEXT[THEME], font=FONT["Subheading"])
-        self.search_header.grid(row=1, column=1, sticky="nsew")
+        self.search_header.grid(row=1, column=3, sticky="nsew")
         
         self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
         self.back_button.grid(row=1, column=0)
         
-        self.test = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.v_search())
-        self.test.grid(row=2, column=0)
+        #Vehicle search
+        self.v_label = Label(frame, text="Vehicle:", fg="#406978", font=FONT["Button"])
+        self.v_label.grid(row=2, column=0)
         
+        self.v_box = Entry(frame)
+        self.v_box.grid(row=2, column=1, sticky="ew")
+        
+        self.v_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.v_search(self.v_box.get().upper()))
+        self.v_button.grid(row=2, column=2)
+        
+        #Route search
+        self.r_label = Label(frame, text="Route:", fg="#406978", font=FONT["Button"])
+        self.r_label.grid(row=3, column=0)        
+        
+        self.r_box = Entry(frame)
+        self.r_box.grid(row=3, column=1, sticky="ew")
+        
+        self.r_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.r_search(self.r_box.get()))
+        self.r_button.grid(row=3, column=2)
+        
+        #Date search
+        self.d_label = Label(frame, text="Date:", fg="#406978", font=FONT["Button"])
+        self.d_label.grid(row=4, column=0)        
+        
+        self.d_box = Entry(frame)
+        self.d_box.grid(row=4, column=1, sticky="ew")
+        
+        self.d_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.d_search(self.d_box.get()))
+        self.d_button.grid(row=4, column=2)            
+        
+        #ID search
+        self.i_label = Label(frame, text="Trip ID:", fg="#406978", font=FONT["Button"])
+        self.i_label.grid(row=5, column=0)        
+        
+        self.i_box = Entry(frame)
+        self.i_box.grid(row=5, column=1, sticky="ew")
+        
+        self.i_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.i_search(self.i_box.get()))
+        self.i_button.grid(row=5, column=2)            
+        
+        #Results
         self.search_results = Label(frame, text="Results will appear here", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Text"], highlightbackground="black", highlightthickness=1)
-        self.search_results.grid(row=2, column=1, sticky="nsew")        
+        self.search_results.grid(row=2, column=3, sticky="nsew", rowspan=5)        
         
         return frame
     
@@ -136,8 +195,11 @@ class GUI:
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
         
-        self.title = Label(frame, text="Not yet implemented", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.title = Label(frame, text="Coming soon", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
         self.title.grid(row=0, column=0, sticky="nsew")
+        
+        self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
+        self.back_button.grid(row=1, column=0)        
         
         return frame
     
@@ -145,21 +207,55 @@ class GUI:
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
         
-        self.title = Label(frame, text="Not yet implemented", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.title.grid(row=0, column=0, sticky="nsew")        
+        self.title = Label(frame, text="Coming soon", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.title.grid(row=0, column=0, sticky="nsew")
+        
+        self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
+        self.back_button.grid(row=1, column=0)        
         
         return frame
     
-    def v_search(self):
-        self.search_header.configure(text=f"Trips on HE604")
+    def v_search(self, search):
+        self.search_header.configure(text=f"Trips on {search}")
         results = []
         for i in trips:
-            if i.vehicle_search("HE604") != None:
-                results.append(i.vehicle_search("HE604"))
-        output = f"{len(results)} trips on HE604"
+            if i.vehicle_search(search) != None:
+                results.append(i.vehicle_search(search))
+        output = f"{len(results)} trips on {search}"
         for o in range(len(results)):
             output += f"\n{str(results[o])}"
         self.search_results.configure(text=(output))
+        
+    def r_search(self, search):
+        self.search_header.configure(text=f"Trips on {search}")
+        results = []
+        for i in trips:
+            if i.route_search(search) != None:
+                results.append(i.route_search(search))
+        output = f"{len(results)} trip(s) on {search}"
+        for o in range(len(results)):
+            output += f"\n{str(results[o])}"
+        self.search_results.configure(text=(output))    
+        
+    def d_search(self, search):
+        self.search_header.configure(text=f"Trips on {search}")
+        results = []
+        for i in trips:
+            if i.date_search(search) != None:
+                results.append(i.date_search(search))
+        output = f"{len(results)} trip(s) on {search}"
+        for o in range(len(results)):
+            output += f"\n{str(results[o])}"
+        self.search_results.configure(text=(output))           
+        
+    def i_search(self, search):
+        self.search_header.configure(text=f"Trip {search}")
+        results = None
+        for i in trips:
+            if i.id_search(search) != None:
+                results = i.id_search(search)
+        self.search_results.configure(text=results)      
+    
     def run(self):
         self.master.mainloop()
         

@@ -10,6 +10,7 @@ V0.0.5 - Created classes and import script
 V0.1.0 - Set up basic search demo using HE604
 V0.1.1 - Added more search functions and made general adjustments
 V1.0.0 - Functional search, minimum viable product
+V1.0.1 - Fixed date search
 '''
 
 #Libraries
@@ -65,7 +66,7 @@ class Trip:
         
     def date_search(self, search):
         if self.date == search:
-            return f"{self.vehicle} - {self.date} - ID:{self.service_id}"
+            return f"{self.vehicle} - {self.route} - ID:{self.service_id}"
         else:
             return None
         

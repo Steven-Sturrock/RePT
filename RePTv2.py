@@ -12,6 +12,8 @@ V0.1.1 - Added more search functions and made general adjustments
 V1.0.0 - Functional search, minimum viable product
 V2.0.0 - Added validation
 V2.0.1 - Cleaned up code and improved validation
+V2.1.0 - Added trip logging functionality
+V2.1.1 - Added export functionality for trip logging
 '''
 
 #Libraries
@@ -20,13 +22,14 @@ import csv
 import datetime
 
 #Settings
-THEME = "Metlink"
+THEME = "AT"
 SOURCE = "trips.csv"
 
 #Column names
 ROUTE = 'Route'
 VEHICLE = 'Vehicle'
 DATE = 'Date'
+SERVICE_ID = 'Service No.'
 
 #Current date (validation)
 D = int(datetime.datetime.now().strftime("%d"))
@@ -34,12 +37,12 @@ M = int(datetime.datetime.now().strftime("%m"))
 Y = int(datetime.datetime.now().strftime("%Y"))
 
 #Design constants
-HEADING = {"AT":"#2d7caf", "Metlink":"#00364a", "Huia":"#282829", "MAXX":"#ffc02f"}
+HEADING = {"AT":"#2d7caf", "Metlink":"#00364a", "Huia":"#282829", "MAXX":"#00a3e6"}
 HEADINGTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Huia":"#ffc90e", "MAXX":"#ffffff"}
 SUBHEADING = {"AT":"#00A7E5", "Metlink":"#cddc2a", "Huia":"#323d48", "MAXX":"#f4661d"}
 SUBHEADINGTEXT = {"AT":"#ffffff", "Metlink":"#00364a", "Huia":"#ffffff", "MAXX":"#ffffff"}
-BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Huia":"#ffc90e", "MAXX":"#00a3e6"}
-BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Huia":"#282829", "MAXX":"#ffffff"}
+BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Huia":"#ffc90e", "MAXX":"#ffc02f"}
+BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Huia":"#282829", "MAXX":"#282829"}
 FONT = {"Heading":"Arial 40 bold", "Subheading":"Arial 25 bold", "Button":"Arial 14", "Text":"Arial 12"}
 
 #Classes
@@ -63,7 +66,7 @@ class Trip:
     
     #Check if search term is equal to self.route and return data if true
     def route_search(self, search):
-        if self.route == search:
+        if self.route.lower() == search.lower():
             return f"{self.vehicle} - {self.date} - ID:{self.service_id}"
         else:
             return None
@@ -74,19 +77,12 @@ class Trip:
             return f"{self.vehicle} - {self.route} - ID:{self.service_id}"
         else:
             return None
-    
-    #Check if search term is equal to self.service_id and return data if true
-    def id_search(self, search):
-        if self.service_id == search:
-            return self
-        else:
-            return None    
 
 #Load data
 with open(SOURCE) as tripfile:
     trips = []
     for i in csv.DictReader(tripfile):
-        trips.append(Trip(i['Vehicle'], i['Route'], i['Date'], i['Service No.']))    
+        trips.append(Trip(i[VEHICLE], i[ROUTE], i[DATE], i[SERVICE_ID]))    
     
 
 #Main program
@@ -207,15 +203,53 @@ class GUI:
         
         return frame
     
-    def create_log_frame(self): #Unfinished
+    def create_log_frame(self): #Save trips
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
         
-        self.title = Label(frame, text="Coming soon", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.title.grid(row=0, column=0, sticky="nsew")
+        #Log Header
+        self.title = Label(frame, text="Log trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.title.grid(row=0, column=0, sticky="nsew", columnspan=3)
         
+        #Back button
         self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
-        self.back_button.grid(row=1, column=0)               
+        self.back_button.grid(row=1, column=0)
+        
+        #Vehicle
+        self.v_log_label = Label(frame, text="Vehicle:", fg="#406978", font=FONT["Button"])
+        self.v_log_label.grid(row=2, column=0, sticky="e")
+        
+        self.v_log_box = Entry(frame)
+        self.v_log_box.grid(row=2, column=1, sticky="ew")
+        
+        #Route
+        self.r_log_label = Label(frame, text="Route:", fg="#406978", font=FONT["Button"])
+        self.r_log_label.grid(row=3, column=0, sticky="e")
+        
+        self.r_log_box = Entry(frame)
+        self.r_log_box.grid(row=3, column=1, sticky="ew")
+        
+        #Date
+        self.d_log_label = Label(frame, text="Date:", fg="#406978", font=FONT["Button"])
+        self.d_log_label.grid(row=4, column=0, sticky="e")
+        
+        self.d_log_box = Entry(frame)
+        self.d_log_box.grid(row=4, column=1, sticky="ew")
+        
+        self.d_log_today = Button(frame, text="Today", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5)
+        self.d_log_today.grid(row=4, column=2, sticky="w")
+        
+        #Log button
+        self.log_button = Button(frame, text="Log", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.log_trip(self.v_log_box.get().upper(), self.r_log_box.get(), self.d_log_box.get()))
+        self.log_button.grid(row=5, column=1)
+        
+        #Save button
+        self.log_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
+        self.log_button.grid(row=6, column=1)        
+        
+        #Message box
+        self.message_log = Label(frame, text="", fg="#406978", font=FONT["Button"])
+        self.message_log.grid(row=7, column=0, columnspan=3)
         
         return frame
     
@@ -264,9 +298,6 @@ class GUI:
             for o in range(len(results)):
                 output += f"\n{str(results[o])}"
             self.search_results.configure(text=(output))
-        elif self.date_check(search) == False:
-            self.search_subheading.configure(text="Invalid Date")
-            self.search_results.configure(text="Please enter a date that is not in the future")
         else:
             self.search_subheading.configure(text="Invalid Date")
             self.search_results.configure(text=self.date_check(search))
@@ -281,11 +312,7 @@ class GUI:
                 self.search_results.configure(text="No trip with this ID found")
             else:
                 self.search_subheading.configure(text=f"Trip {search}")
-                results = None
-                for i in trips:
-                    if i.id_search(search) != None:
-                        results = i.id_search(search)
-                self.search_results.configure(text=results)   
+                self.search_results.configure(text=trips[int(search)-1])
         except ValueError: #Error handling if non integer is entered
             self.search_subheading.configure(text="Invalid input")
             self.search_results.configure(text="Please enter a whole number")
@@ -294,15 +321,34 @@ class GUI:
         try:
             d, m, y = date.split("/")
             if int(y) > Y:
-                return False
+                return("Date can't be in the future")
             elif int(y) == Y and int(m) > M:
-                return False
+                return("Date can't be in the future")
             elif int(m) == M and int(d) > D:
-                return False
+                return("Date can't be in the future")
             else:
                 return True
         except:
             return("Invalid date format\nPlease use MM/DD/YYYY")
+    
+    def log_trip(self, vehicle, route, date):
+        if self.date_check(date) == True:
+            trips.append(Trip(vehicle, route, date, (len(trips) + 1)))
+            self.message_log.configure(text=f"Saved trip with ID: {len(trips)}")
+            self.v_log_box.delete(0, 'end')
+            self.r_log_box.delete(0, 'end')   
+        else:
+            self.message_log.configure(text="Invalid trip")
+            
+    def save(self):
+        with open("trips.csv", "w", newline='') as  tripfile: #Export trips to another CSV file
+            fields = [VEHICLE, ROUTE, DATE, SERVICE_ID]
+            export = csv.DictWriter(tripfile, fieldnames=fields)
+            export.writeheader()
+            for i in trips:
+                export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date, fields[3]:i.service_id})
+            self.message_log.configure(text="Saved to file")
+    
     def run(self):
         self.master.mainloop()
         

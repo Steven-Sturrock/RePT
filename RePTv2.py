@@ -15,6 +15,7 @@ V2.0.1 - Cleaned up code and improved validation
 V2.1.0 - Added trip logging functionality
 V2.1.1 - Added export functionality for trip logging
 V2.1.2 - Added working today button
+V2.2.0 - Added trip editing
 '''
 
 #Libraries
@@ -23,7 +24,7 @@ import csv
 import datetime
 
 #Settings
-THEME = "Metlink"
+THEME = "AT"
 SOURCE = "trips.csv"
 
 #Column names
@@ -94,6 +95,7 @@ class GUI:
         self.master.title("RePT")
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
+        self.master.resizable(0,0)
         
         #Create container
         self.container = Frame(self.master)
@@ -136,7 +138,7 @@ class GUI:
         self.log_button.grid(row=3, column=0, sticky="nsew", pady=10, padx=10)        
         
         #Edit menu heading
-        self.edit_button = Button(frame, text="Edit trip", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=10, command=lambda: self.show_window("EditFrame"))
+        self.edit_button = Button(frame, text="Edit trips", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=10, command=lambda: self.show_window("EditFrame"))
         self.edit_button.grid(row=4, column=0, sticky="nsew", pady=10, padx=10)                
         
         return frame
@@ -245,8 +247,8 @@ class GUI:
         self.log_button.grid(row=5, column=1)
         
         #Save button
-        self.log_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
-        self.log_button.grid(row=6, column=1)        
+        self.save_log_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
+        self.save_log_button.grid(row=6, column=1)        
         
         #Message box
         self.message_log = Label(frame, text="", fg="#406978", font=FONT["Button"])
@@ -258,13 +260,59 @@ class GUI:
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
         
-        self.title = Label(frame, text="Coming soon", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.title.grid(row=0, column=0, sticky="nsew")
+        #Log Header
+        self.title = Label(frame, text="Edit trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.title.grid(row=0, column=0, sticky="nsew", columnspan=3)
         
+        #Back button
         self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
-        self.back_button.grid(row=1, column=0)        
+        self.back_button.grid(row=1, column=0)
         
-        return frame
+        #Vehicle
+        self.i_edit_label = Label(frame, text="Trip ID:", fg="#406978", font=FONT["Button"])
+        self.i_edit_label.grid(row=2, column=0, sticky="e")
+        
+        self.i_edit_box = Entry(frame)
+        self.i_edit_box.grid(row=2, column=1, sticky="ew")        
+        
+        #Vehicle
+        self.v_edit_label = Label(frame, text="Vehicle:", fg="#406978", font=FONT["Button"])
+        self.v_edit_label.grid(row=3, column=0, sticky="e")
+        
+        self.v_edit_box = Entry(frame)
+        self.v_edit_box.grid(row=3, column=1, sticky="ew")
+        
+        #Route
+        self.r_edit_label = Label(frame, text="Route:", fg="#406978", font=FONT["Button"])
+        self.r_edit_label.grid(row=4, column=0, sticky="e")
+        
+        self.r_edit_box = Entry(frame)
+        self.r_edit_box.grid(row=4, column=1, sticky="ew")
+        
+        #Date
+        self.d_edit_label = Label(frame, text="Date:", fg="#406978", font=FONT["Button"])
+        self.d_edit_label.grid(row=5, column=0, sticky="e")
+        
+        self.d_edit_box = Entry(frame)
+        self.d_edit_box.grid(row=5, column=1, sticky="ew")
+        
+        #Edit button
+        self.edit_button = Button(frame, text="Edit", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.edit_trip(self.i_edit_box.get(), self.v_edit_box.get().upper(), self.r_edit_box.get(), self.d_edit_box.get()))
+        self.edit_button.grid(row=6, column=1)
+        
+        #Delete button
+        self.delete_button = Button(frame, text="Delete", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5)
+        self.delete_button.grid(row=7, column=1)        
+        
+        #Save button
+        self.save_edit_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
+        self.save_edit_button.grid(row=8, column=1)        
+        
+        #Message box
+        self.message_edit = Label(frame, text="", fg="#406978", font=FONT["Button"])
+        self.message_edit.grid(row=9, column=0, columnspan=3)
+        
+        return frame  
     
     def v_search(self, search): #Search for vehicles in trips list
         self.search_subheading.configure(text=f"Trips on {search}")
@@ -349,6 +397,22 @@ class GUI:
             for i in trips:
                 export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date, fields[3]:i.service_id})
             self.message_log.configure(text="Saved to file")
+            
+    def edit_trip(self, ID, vehicle, route, date):
+        try:
+            ID = int(ID)
+            if ID <= 0 or ID > len(trips):
+                self.message_edit.configure(text="Please enter a valid ID")
+            else:
+                if vehicle != '':
+                    trips[ID-1].vehicle = vehicle.upper()
+                if route != '':
+                    trips[ID-1].route = route
+                if date != '' and self.date_check(date) == True:
+                    trips[ID-1].date = date
+                self.message_edit.configure(text="Updated trip details")
+        except ValueError:
+            self.message_edit.configure(text="Please enter a whole number for ID")
     
     def run(self):
         self.master.mainloop()

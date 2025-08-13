@@ -14,6 +14,7 @@ V2.0.0 - Added validation
 V2.0.1 - Cleaned up code and improved validation
 V2.1.0 - Added trip logging functionality
 V2.1.1 - Added export functionality for trip logging
+V2.1.2 - Added working today button
 '''
 
 #Libraries
@@ -22,7 +23,7 @@ import csv
 import datetime
 
 #Settings
-THEME = "AT"
+THEME = "Metlink"
 SOURCE = "trips.csv"
 
 #Column names
@@ -236,7 +237,7 @@ class GUI:
         self.d_log_box = Entry(frame)
         self.d_log_box.grid(row=4, column=1, sticky="ew")
         
-        self.d_log_today = Button(frame, text="Today", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5)
+        self.d_log_today = Button(frame, text="Today", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: [self.d_log_box.delete(0, 'end'), self.d_log_box.insert(0, f"{D:02d}/{M:02d}/{Y:04d}")])
         self.d_log_today.grid(row=4, column=2, sticky="w")
         
         #Log button

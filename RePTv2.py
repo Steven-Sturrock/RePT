@@ -17,6 +17,7 @@ V2.1.1 - Added export functionality for trip logging
 V2.1.2 - Added working today button
 V2.2.0 - Added trip editing
 V2.2.1 - Added missing file handling
+V2.2.2 - Removed service_id and resorted to list position
 '''
 
 #Libraries
@@ -32,7 +33,6 @@ SOURCE = "trips.csv"
 ROUTE = 'Route'
 VEHICLE = 'Vehicle'
 DATE = 'Date'
-SERVICE_ID = 'Service No.'
 
 #Current date (validation)
 D = int(datetime.datetime.now().strftime("%d"))
@@ -50,34 +50,33 @@ FONT = {"Heading":"Arial 40 bold", "Subheading":"Arial 25 bold", "Button":"Arial
 
 #Classes
 class Trip:
-    def __init__(self, vehicle, route, date, service_id):
+    def __init__(self, vehicle, route, date):
         self.vehicle = vehicle.upper()
         self.route = route
         self.date = date
-        self.service_id = service_id
         
     #Print all vehicle data
     def __str__(self):
-        return f"Vehicle: {self.vehicle}\nRoute: {self.route}\nDate: {self.date}\nService ID: {self.service_id}"
+        return f"Vehicle: {self.vehicle}\nRoute: {self.route}\nDate: {self.date}"
     
     #Check if search term is equal to self.vehicle and return data if true
-    def vehicle_search(self, search):
+    def vehicle_search(self, search, ID):
         if self.vehicle == search:
-            return f"{self.route} - {self.date} - ID:{self.service_id}"
+            return f"{self.route} - {self.date} - ID:{ID}"
         else:
             return None
     
     #Check if search term is equal to self.route and return data if true
-    def route_search(self, search):
+    def route_search(self, search, ID):
         if self.route.lower() == search.lower():
-            return f"{self.vehicle} - {self.date} - ID:{self.service_id}"
+            return f"{self.vehicle} - {self.date} - ID:{ID}"
         else:
             return None
     
     #Check if search term is equal to self.date and return data if true
-    def date_search(self, search):
+    def date_search(self, search, ID):
         if self.date == search:
-            return f"{self.vehicle} - {self.route} - ID:{self.service_id}"
+            return f"{self.vehicle} - {self.route} - ID:{ID}"
         else:
             return None
 
@@ -86,7 +85,7 @@ try:
     with open(SOURCE) as tripfile:
         trips = []
         for i in csv.DictReader(tripfile):
-            trips.append(Trip(i[VEHICLE], i[ROUTE], i[DATE], i[SERVICE_ID]))
+            trips.append(Trip(i[VEHICLE], i[ROUTE], i[DATE]))
 except:
     trips = []
     
@@ -305,7 +304,7 @@ class GUI:
         self.edit_button.grid(row=6, column=1)
         
         #Delete button
-        self.delete_button = Button(frame, text="Delete", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.message_edit.configure(text=f"Feature not currently implemented")) #Not functional currently
+        self.delete_button = Button(frame, text="Delete", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.delete_trip(self.i_edit_box.get())) #Not functional currently
         self.delete_button.grid(row=7, column=1)        
         
         #Save button
@@ -321,9 +320,9 @@ class GUI:
     def v_search(self, search): #Search for vehicles in trips list
         self.search_subheading.configure(text=f"Trips on {search}")
         results = []
-        for i in trips:
-            if i.vehicle_search(search) != None:
-                results.append(i.vehicle_search(search))
+        for i in range(len(trips)):
+            if trips[i].vehicle_search(search, i + 1) != None:
+                results.append(trips[i].vehicle_search(search, i + 1))
         output = f"{len(results)} trip(s) on {search}"
         for o in range(len(results)):
             output += f"\n{str(results[o])}"
@@ -332,9 +331,9 @@ class GUI:
     def r_search(self, search): #Search for routes in trips list
         self.search_subheading.configure(text=f"Trips on {search}")
         results = []
-        for i in trips:
-            if i.route_search(search) != None:
-                results.append(i.route_search(search))
+        for i in range(len(trips)):
+            if trips[i].route_search(search, i + 1) != None:
+                results.append(trips[i].route_search(search, i + 1))
         output = f"{len(results)} trip(s) on {search}"
         for o in range(len(results)):
             output += f"\n{str(results[o])}"
@@ -344,9 +343,9 @@ class GUI:
         if self.date_check(search) == True:
             self.search_subheading.configure(text=f"Trips on {search}")
             results = []
-            for i in trips:
-                if i.date_search(search) != None:
-                    results.append(i.date_search(search))
+            for i in range(len(trips)):
+                if trips[i].date_search(search, i + 1) != None:
+                    results.append(trips[i].date_search(search, i + 1))
             output = f"{len(results)} trip(s) on {search}"
             for o in range(len(results)):
                 output += f"\n{str(results[o])}"
@@ -379,6 +378,8 @@ class GUI:
                 return("Date can't be in the future")
             elif int(m) == M and int(d) > D:
                 return("Date can't be in the future")
+            elif len(date) != 10:
+                return("Invalid date format\nPlease use MM/DD/YYYY")
             else:
                 return True
         except:
@@ -386,7 +387,7 @@ class GUI:
     
     def log_trip(self, vehicle, route, date):
         if self.date_check(date) == True:
-            trips.append(Trip(vehicle, route, date, (len(trips) + 1)))
+            trips.append(Trip(vehicle, route, date))
             self.message_log.configure(text=f"Saved trip with ID: {len(trips)}")
             self.v_log_box.delete(0, 'end')
             self.r_log_box.delete(0, 'end')   
@@ -395,11 +396,11 @@ class GUI:
             
     def save(self):
         with open(SOURCE, "w", newline='') as  tripfile: #Export trips to another CSV file
-            fields = [VEHICLE, ROUTE, DATE, SERVICE_ID]
+            fields = [VEHICLE, ROUTE, DATE]
             export = csv.DictWriter(tripfile, fieldnames=fields)
             export.writeheader()
             for i in trips:
-                export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date, fields[3]:i.service_id})
+                export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date})
             self.message_log.configure(text="Saved to file")
             
     def edit_trip(self, ID, vehicle, route, date):
@@ -420,11 +421,12 @@ class GUI:
     
     def delete_trip(self, ID):
         try:
-            for i in range(len(trips)):
-                if trips[i].service_id == str(ID):
-                    trips.pop(i)
-                    self.message_edit.configure(text=f"Deleted trip with ID {ID}")
-                    break
+            ID = int(ID)
+            if ID > 0 and ID <= len(trips):
+                trips.pop(ID-1)
+                self.message_edit.configure(text=f"Deleted trip with ID: {ID}")
+            else:
+                self.message_edit.configure(text="Error, trip not found")
         except ValueError:
             self.message_edit.configure(text="Please enter a whole number for ID")    
     

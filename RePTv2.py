@@ -16,6 +16,7 @@ V2.1.0 - Added trip logging functionality
 V2.1.1 - Added export functionality for trip logging
 V2.1.2 - Added working today button
 V2.2.0 - Added trip editing
+V2.2.1 - Added missing file handling
 '''
 
 #Libraries
@@ -81,10 +82,13 @@ class Trip:
             return None
 
 #Load data
-with open(SOURCE) as tripfile:
+try:
+    with open(SOURCE) as tripfile:
+        trips = []
+        for i in csv.DictReader(tripfile):
+            trips.append(Trip(i[VEHICLE], i[ROUTE], i[DATE], i[SERVICE_ID]))
+except:
     trips = []
-    for i in csv.DictReader(tripfile):
-        trips.append(Trip(i[VEHICLE], i[ROUTE], i[DATE], i[SERVICE_ID]))    
     
 
 #Main program
@@ -301,7 +305,7 @@ class GUI:
         self.edit_button.grid(row=6, column=1)
         
         #Delete button
-        self.delete_button = Button(frame, text="Delete", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5)
+        self.delete_button = Button(frame, text="Delete", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.message_edit.configure(text=f"Feature not currently implemented")) #Not functional currently
         self.delete_button.grid(row=7, column=1)        
         
         #Save button
@@ -390,7 +394,7 @@ class GUI:
             self.message_log.configure(text="Invalid trip")
             
     def save(self):
-        with open("trips.csv", "w", newline='') as  tripfile: #Export trips to another CSV file
+        with open(SOURCE, "w", newline='') as  tripfile: #Export trips to another CSV file
             fields = [VEHICLE, ROUTE, DATE, SERVICE_ID]
             export = csv.DictWriter(tripfile, fieldnames=fields)
             export.writeheader()
@@ -413,6 +417,16 @@ class GUI:
                 self.message_edit.configure(text="Updated trip details")
         except ValueError:
             self.message_edit.configure(text="Please enter a whole number for ID")
+    
+    def delete_trip(self, ID):
+        try:
+            for i in range(len(trips)):
+                if trips[i].service_id == str(ID):
+                    trips.pop(i)
+                    self.message_edit.configure(text=f"Deleted trip with ID {ID}")
+                    break
+        except ValueError:
+            self.message_edit.configure(text="Please enter a whole number for ID")    
     
     def run(self):
         self.master.mainloop()

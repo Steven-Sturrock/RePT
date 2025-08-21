@@ -21,6 +21,7 @@ V2.2.2 - Added working delete button, removed service_id and resorted to list po
 V3.0.0 - Additional commments and load from settings
 V3.0.1 - Working settings menu
 V3.0.2 - More themes
+V3.0.3 - Settings validation
 '''
 
 #Libraries
@@ -520,10 +521,13 @@ class GUI:
             self.message_edit.configure(text="Please enter a whole number for ID")    
     
     def update_settings(self, theme, source, vehicle, route, date):
-        config = {"THEME":theme, "SOURCE":source, "VEHICLE":vehicle, "ROUTE":route, "DATE":date}
-        with open("config.json", "w") as f:
-            json.dump(config, f, indent=2)
-        self.message_settings.configure(text="Relaunch required")
+        if source[-4:] != ".csv":
+            self.message_settings.configure(text="Please enter a valid filename ([Name].csv)")
+        else:
+            config = {"THEME":theme, "SOURCE":source, "VEHICLE":vehicle, "ROUTE":route, "DATE":date}
+            with open("config.json", "w") as f:
+                json.dump(config, f, indent=2)
+            self.message_settings.configure(text="Relaunch required")
     
     def run(self):
         self.master.mainloop()

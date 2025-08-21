@@ -20,6 +20,7 @@ V2.2.1 - Added missing file handling
 V2.2.2 - Added working delete button, removed service_id and resorted to list position
 V3.0.0 - Additional commments and load from settings
 V3.0.1 - Working settings menu
+V3.0.2 - More themes
 '''
 
 #Libraries
@@ -52,12 +53,12 @@ M = int(datetime.datetime.now().strftime("%m"))
 Y = int(datetime.datetime.now().strftime("%Y"))
 
 #Design constants
-HEADING = {"AT":"#2d7caf", "Metlink":"#00364a", "Huia":"#282829", "MAXX":"#00a3e6"}
-HEADINGTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Huia":"#ffc90e", "MAXX":"#ffffff"}
-SUBHEADING = {"AT":"#00A7E5", "Metlink":"#cddc2a", "Huia":"#323d48", "MAXX":"#f4661d"}
-SUBHEADINGTEXT = {"AT":"#ffffff", "Metlink":"#00364a", "Huia":"#ffffff", "MAXX":"#ffffff"}
-BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Huia":"#ffc90e", "MAXX":"#ffc02f"}
-BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Huia":"#282829", "MAXX":"#282829"}
+HEADING = {"AT":"#2d7caf", "Metlink":"#00364a", "Te Huia":"#282829", "MAXX":"#00a3e6", "BUSIT":"#28b44b", "Metro":"#46c1be"}
+HEADINGTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Te Huia":"#ffc90e", "MAXX":"#ffffff", "BUSIT":"#ffffff", "Metro":"#ffffff"}
+SUBHEADING = {"AT":"#00A7E5", "Metlink":"#cddc2a", "Te Huia":"#323d48", "MAXX":"#f4661d", "BUSIT":"#323d48", "Metro":"#009490"}
+SUBHEADINGTEXT = {"AT":"#ffffff", "Metlink":"#00364a", "Te Huia":"#ffffff", "MAXX":"#ffffff", "BUSIT":"#ffffff", "Metro":"#ffffff"}
+BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Te Huia":"#ffc90e", "MAXX":"#ffc02f", "BUSIT":"#c4c4c4", "Metro":"#46c1be"}
+BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Te Huia":"#282829", "MAXX":"#282829", "BUSIT":"#323d48", "Metro":"#e7f1f9"}
 FONT = {"Heading":"Arial 40 bold", "Subheading":"Arial 25 bold", "Button":"Arial 14", "Text":"Arial 12"}
 
 #Classes
@@ -354,7 +355,7 @@ class GUI:
         self.theme_choice = StringVar()
         self.theme_choice.set(THEME)
         self.theme_box = ttk.Combobox(frame, textvariable=self.theme_choice, state="readonly")
-        self.theme_box['values'] = list(HEADING.keys())
+        self.theme_box['values'] = sorted(list(HEADING.keys()))
         self.theme_box.grid(row=2, column=1, sticky="ew")
         
         #Source (label and box)

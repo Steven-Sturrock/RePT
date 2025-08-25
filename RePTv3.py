@@ -22,6 +22,7 @@ V3.0.0 - Additional commments and load from settings
 V3.0.1 - Working settings menu
 V3.0.2 - More themes
 V3.0.3 - Settings validation
+V3.0.4 - Validation improvements, autofill, and LNER theme
 '''
 
 #Libraries
@@ -54,12 +55,12 @@ M = int(datetime.datetime.now().strftime("%m"))
 Y = int(datetime.datetime.now().strftime("%Y"))
 
 #Design constants
-HEADING = {"AT":"#2d7caf", "Metlink":"#00364a", "Te Huia":"#282829", "MAXX":"#00a3e6", "BUSIT":"#28b44b", "Metro":"#46c1be"}
-HEADINGTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Te Huia":"#ffc90e", "MAXX":"#ffffff", "BUSIT":"#ffffff", "Metro":"#ffffff"}
-SUBHEADING = {"AT":"#00A7E5", "Metlink":"#cddc2a", "Te Huia":"#323d48", "MAXX":"#f4661d", "BUSIT":"#323d48", "Metro":"#009490"}
-SUBHEADINGTEXT = {"AT":"#ffffff", "Metlink":"#00364a", "Te Huia":"#ffffff", "MAXX":"#ffffff", "BUSIT":"#ffffff", "Metro":"#ffffff"}
-BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Te Huia":"#ffc90e", "MAXX":"#ffc02f", "BUSIT":"#c4c4c4", "Metro":"#46c1be"}
-BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Te Huia":"#282829", "MAXX":"#282829", "BUSIT":"#323d48", "Metro":"#e7f1f9"}
+HEADING = {"AT":"#2d7caf", "Metlink":"#00364a", "Te Huia":"#282829", "MAXX":"#00a3e6", "BUSIT":"#28b44b", "Metro":"#46c1be", "LNER":"#ffffff"}
+HEADINGTEXT = {"AT":"#ffffff", "Metlink":"#ffffff", "Te Huia":"#ffc90e", "MAXX":"#ffffff", "BUSIT":"#ffffff", "Metro":"#ffffff", "LNER":"#ce132e"}
+SUBHEADING = {"AT":"#00A7E5", "Metlink":"#cddc2a", "Te Huia":"#323d48", "MAXX":"#f4661d", "BUSIT":"#323d48", "Metro":"#009490", "LNER":"#ce132e"}
+SUBHEADINGTEXT = {"AT":"#ffffff", "Metlink":"#00364a", "Te Huia":"#ffffff", "MAXX":"#ffffff", "BUSIT":"#ffffff", "Metro":"#ffffff", "LNER":"#ffffff"}
+BUTTON = {"AT":"#d4edfc", "Metlink":"#406978", "Te Huia":"#ffc90e", "MAXX":"#ffc02f", "BUSIT":"#c4c4c4", "Metro":"#46c1be", "LNER":"#ffffff"}
+BUTTONTEXT = {"AT":"#282829", "Metlink":"#ffffff", "Te Huia":"#282829", "MAXX":"#282829", "BUSIT":"#323d48", "Metro":"#e7f1f9", "LNER":"#ce132e"}
 FONT = {"Heading":"Arial 40 bold", "Subheading":"Arial 25 bold", "Button":"Arial 14", "Text":"Arial 12"}
 
 #Classes
@@ -291,6 +292,10 @@ class GUI:
         self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
         self.back_button.grid(row=1, column=0)
         
+        #Autofill
+        self.autofill_edit_button = Button(frame, text="Autofill", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.autofill_edit(self.i_edit_box.get()))
+        self.autofill_edit_button.grid(row=2, column=2, sticky="w")
+        
         #ID (label and box)
         self.i_edit_label = Label(frame, text="Service ID:", fg="#406978", font=FONT["Button"])
         self.i_edit_label.grid(row=2, column=0, sticky="e")
@@ -468,6 +473,8 @@ class GUI:
                 return("Date can't be in the future")
             elif len(date) != 10:
                 return("Invalid date format\nPlease use MM/DD/YYYY")
+            elif int(d) > 31 or int(m) > 12:
+                return("Invalid date")
             else:
                 return True
         except:
@@ -528,6 +535,21 @@ class GUI:
             with open("config.json", "w") as f:
                 json.dump(config, f, indent=2)
             self.message_settings.configure(text="Relaunch required")
+            
+    def autofill_edit(self, ID):
+        self.v_edit_box.delete(0, 'end')
+        self.r_edit_box.delete(0, 'end')
+        self.d_edit_box.delete(0, 'end')
+        try:
+            ID = int(ID)
+            if ID > 0 and ID <= len(trips):
+                self.v_edit_box.insert(0, trips[ID-1].vehicle)
+                self.r_edit_box.insert(0, trips[ID-1].route)
+                self.d_edit_box.insert(0, trips[ID-1].date)
+            else:
+                self.message_edit.configure(text="Error, trip not found")
+        except ValueError:
+            self.message_edit.configure(text="Please enter a whole number for ID")
     
     def run(self):
         self.master.mainloop()

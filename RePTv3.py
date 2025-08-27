@@ -23,6 +23,7 @@ V3.0.1 - Working settings menu
 V3.0.2 - More themes
 V3.0.3 - Settings validation
 V3.0.4 - Validation improvements, autofill, and LNER theme
+V3.0.5 - Minor fixes
 '''
 
 #Libraries
@@ -96,14 +97,14 @@ class Trip:
         else:
             return None
 
-#Load data
+#Load data from file
 try:
     with open(SOURCE) as tripfile:
         trips = []
         for i in csv.DictReader(tripfile):
             trips.append(Trip(i[VEHICLE], i[ROUTE], i[DATE]))
 except:
-    trips = []
+    trips = [] 
     
 
 #Main program
@@ -181,48 +182,48 @@ class GUI:
         self.search_subheading.grid(row=1, column=3, sticky="nsew")
         
         #Back button
-        self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
-        self.back_button.grid(row=1, column=0)
+        self.search_back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
+        self.search_back_button.grid(row=1, column=0)
         
         #Vehicle search (label, box, and button)
-        self.v_label = Label(frame, text="Vehicle:", fg="#406978", font=FONT["Button"])
-        self.v_label.grid(row=2, column=0)
+        self.v_search_label = Label(frame, text="Vehicle:", fg="#406978", font=FONT["Button"])
+        self.v_search_label.grid(row=2, column=0)
         
-        self.v_box = Entry(frame)
-        self.v_box.grid(row=2, column=1, sticky="ew")
+        self.v_search_box = Entry(frame)
+        self.v_search_box.grid(row=2, column=1, sticky="ew")
         
-        self.v_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.v_search(self.v_box.get().upper()))
-        self.v_button.grid(row=2, column=2)
+        self.v_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.v_search(self.v_search_box.get().upper()))
+        self.v_search_button.grid(row=2, column=2)
         
         #Route search (label, box, and button)
-        self.r_label = Label(frame, text="Route:", fg="#406978", font=FONT["Button"])
-        self.r_label.grid(row=3, column=0)        
+        self.r_search_label = Label(frame, text="Route:", fg="#406978", font=FONT["Button"])
+        self.r_search_label.grid(row=3, column=0)        
         
-        self.r_box = Entry(frame)
-        self.r_box.grid(row=3, column=1, sticky="ew")
+        self.r_search_box = Entry(frame)
+        self.r_search_box.grid(row=3, column=1, sticky="ew")
         
-        self.r_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.r_search(self.r_box.get()))
-        self.r_button.grid(row=3, column=2)
+        self.r_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.r_search(self.r_search_box.get()))
+        self.r_search_button.grid(row=3, column=2)
         
         #Date search (label, box, and button)
-        self.d_label = Label(frame, text="Date:", fg="#406978", font=FONT["Button"])
-        self.d_label.grid(row=4, column=0)        
+        self.d_search_label = Label(frame, text="Date:", fg="#406978", font=FONT["Button"])
+        self.d_search_label.grid(row=4, column=0)        
         
-        self.d_box = Entry(frame)
-        self.d_box.grid(row=4, column=1, sticky="ew")
+        self.d_search_box = Entry(frame)
+        self.d_search_box.grid(row=4, column=1, sticky="ew")
         
-        self.d_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.d_search(self.d_box.get()))
-        self.d_button.grid(row=4, column=2)            
+        self.d_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.d_search(self.d_search_box.get()))
+        self.d_search_button.grid(row=4, column=2)            
         
         #ID search (label, box, and button)
-        self.i_label = Label(frame, text="Service ID:", fg="#406978", font=FONT["Button"])
-        self.i_label.grid(row=5, column=0)        
+        self.i_search_label = Label(frame, text="Service ID:", fg="#406978", font=FONT["Button"])
+        self.i_search_label.grid(row=5, column=0)        
         
-        self.i_box = Entry(frame)
-        self.i_box.grid(row=5, column=1, sticky="ew")
+        self.i_search_box = Entry(frame)
+        self.i_search_box.grid(row=5, column=1, sticky="ew")
         
-        self.i_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.i_search(self.i_box.get()))
-        self.i_button.grid(row=5, column=2)            
+        self.i_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.i_search(self.i_search_box.get()))
+        self.i_search_button.grid(row=5, column=2)            
         
         #Results
         self.search_results = Label(frame, text="Results will appear here", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Text"], highlightbackground="black", highlightthickness=1)
@@ -235,12 +236,12 @@ class GUI:
         frame.grid(row=0, column=0, sticky="nsew")
         
         #Log Header
-        self.title = Label(frame, text="Log trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.title.grid(row=0, column=0, sticky="nsew", columnspan=3)
+        self.log_heading = Label(frame, text="Log trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.log_heading.grid(row=0, column=0, sticky="nsew", columnspan=3)
         
         #Back button
-        self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
-        self.back_button.grid(row=1, column=0)
+        self.log_back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
+        self.log_back_button.grid(row=1, column=0)
         
         #Vehicle (label and box)
         self.v_log_label = Label(frame, text="Vehicle:", fg="#406978", font=FONT["Button"])
@@ -285,12 +286,12 @@ class GUI:
         frame.grid(row=0, column=0, sticky="nsew")
         
         #Log Header
-        self.title = Label(frame, text="Edit trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.title.grid(row=0, column=0, sticky="nsew", columnspan=3)
+        self.edit_heading = Label(frame, text="Edit trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.edit_heading.grid(row=0, column=0, sticky="nsew", columnspan=3)
         
         #Back button
-        self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
-        self.back_button.grid(row=1, column=0)
+        self.edit_back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
+        self.edit_back_button.grid(row=1, column=0)
         
         #Autofill
         self.autofill_edit_button = Button(frame, text="Autofill", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.autofill_edit(self.i_edit_box.get()))
@@ -347,12 +348,12 @@ class GUI:
         frame.grid(row=0, column=0, sticky="nsew")
         
         #Settings Header
-        self.title = Label(frame, text="Settings", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.title.grid(row=0, column=0, sticky="nsew", columnspan=3)
+        self.settings_heading = Label(frame, text="Settings", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
+        self.settings_heading.grid(row=0, column=0, sticky="nsew", columnspan=3)
         
         #Back button
-        self.back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
-        self.back_button.grid(row=1, column=0)
+        self.settings_back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
+        self.settings_back_button.grid(row=1, column=0)
         
         #Theme (label and combobox)
         self.theme_label = Label(frame, text="Theme:", fg="#406978", font=FONT["Button"])
@@ -417,7 +418,7 @@ class GUI:
             if trips[i].vehicle_search(search, i + 1) != None:
                 results.append(trips[i].vehicle_search(search, i + 1))
         output = f"{len(results)} trip(s) on {search}"
-        for o in range(len(results)):
+        for o in range(len(results)): #Combine all results into a single string
             output += f"\n{str(results[o])}"
         self.search_results.configure(text=(output))
         
@@ -428,7 +429,7 @@ class GUI:
             if trips[i].route_search(search, i + 1) != None:
                 results.append(trips[i].route_search(search, i + 1))
         output = f"{len(results)} trip(s) on {search}"
-        for o in range(len(results)):
+        for o in range(len(results)): #Combine all results into a single string
             output += f"\n{str(results[o])}"
         self.search_results.configure(text=(output))    
         
@@ -440,7 +441,7 @@ class GUI:
                 if trips[i].date_search(search, i + 1) != None:
                     results.append(trips[i].date_search(search, i + 1))
             output = f"{len(results)} trip(s) on {search}"
-            for o in range(len(results)):
+            for o in range(len(results)): #Combine all results into a single string
                 output += f"\n{str(results[o])}"
             self.search_results.configure(text=(output))
         else:
@@ -464,7 +465,7 @@ class GUI:
             
     def date_check(self, date): #Check if the date is formatted correctly and not in the future
         try:
-            d, m, y = date.split("/")
+            d, m, y = date.split("/") #Split date into parts and check if valid
             if int(y) > Y:
                 return("Date can't be in the future")
             elif int(y) == Y and int(m) > M:
@@ -472,22 +473,22 @@ class GUI:
             elif int(m) == M and int(d) > D:
                 return("Date can't be in the future")
             elif len(date) != 10:
-                return("Invalid date format\nPlease use MM/DD/YYYY")
+                return("Invalid date format\nPlease use DD/MM/YYYY")
             elif int(d) > 31 or int(m) > 12:
                 return("Invalid date")
             else:
-                return True
+                return True #Return true value if valid
         except:
-            return("Invalid date format\nPlease use MM/DD/YYYY")
+            return("Invalid date format\nPlease use DD/MM/YYYY")
     
     def log_trip(self, vehicle, route, date): #Add trips to trip list in program
-        if self.date_check(date) == True and route != '' and date != '':
+        if self.date_check(date) == True and vehicle != '' and route != '': #Check validity of entry
             trips.append(Trip(vehicle, route, date))
             self.message_log.configure(text=f"Saved trip with ID: {len(trips)}")
             self.v_log_box.delete(0, 'end')
             self.r_log_box.delete(0, 'end')   
         else:
-            self.message_log.configure(text="Invalid trip")
+            self.message_log.configure(text="Invalid trip details")
             
     def save(self):
         with open(SOURCE, "w", newline='') as  tripfile: #Export trips to CSV file
@@ -495,10 +496,10 @@ class GUI:
             export = csv.DictWriter(tripfile, fieldnames=fields)
             export.writeheader()
             for i in trips:
-                export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date})
+                export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date}) #Write each trip to file
             self.message_log.configure(text="Saved to file")
             
-    def edit_trip(self, ID, vehicle, route, date):
+    def edit_trip(self, ID, vehicle, route, date): #Updates trip details
         try:
             ID = int(ID)
             if ID <= 0 or ID > len(trips):
@@ -514,10 +515,10 @@ class GUI:
         except ValueError:
             self.message_edit.configure(text="Please enter a whole number for ID")
     
-    def delete_trip(self, ID):
+    def delete_trip(self, ID): #Deletes trip details
         try:
-            ID = int(ID)
-            if ID > 0 and ID <= len(trips):
+            ID = int(ID) 
+            if ID > 0 and ID <= len(trips): #Check if trip exists, if so replace all details with 'DELETED'
                 trips[ID-1].vehicle = "DELETED"
                 trips[ID-1].route = "DELETED"
                 trips[ID-1].date = "DELETED"
@@ -527,22 +528,22 @@ class GUI:
         except ValueError:
             self.message_edit.configure(text="Please enter a whole number for ID")    
     
-    def update_settings(self, theme, source, vehicle, route, date):
+    def update_settings(self, theme, source, vehicle, route, date): #Updates settings
         if source[-4:] != ".csv":
-            self.message_settings.configure(text="Please enter a valid filename ([Name].csv)")
+            self.message_settings.configure(text="Please enter a valid filename (filename.csv)")
         else:
             config = {"THEME":theme, "SOURCE":source, "VEHICLE":vehicle, "ROUTE":route, "DATE":date}
             with open("config.json", "w") as f:
                 json.dump(config, f, indent=2)
             self.message_settings.configure(text="Relaunch required")
             
-    def autofill_edit(self, ID):
+    def autofill_edit(self, ID): #Autofills boxes in editing menu
         self.v_edit_box.delete(0, 'end')
         self.r_edit_box.delete(0, 'end')
         self.d_edit_box.delete(0, 'end')
         try:
             ID = int(ID)
-            if ID > 0 and ID <= len(trips):
+            if ID > 0 and ID <= len(trips): #If trip exists, get details and autofill boxes
                 self.v_edit_box.insert(0, trips[ID-1].vehicle)
                 self.r_edit_box.insert(0, trips[ID-1].route)
                 self.d_edit_box.insert(0, trips[ID-1].date)

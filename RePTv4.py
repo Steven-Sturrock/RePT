@@ -25,6 +25,7 @@ V3.0.3 - Settings validation
 V3.0.4 - Validation improvements, autofill, and LNER theme
 V3.0.5 - Minor fixes
 V4.0.0 - Many more themes
+V4.1.0 - Scaling
 '''
 
 #Libraries
@@ -116,7 +117,7 @@ class GUI:
         self.master.title("RePT")
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
-        self.master.resizable(0,0)
+        #self.master.resizable(0,0)
         
         #Create container
         self.container = Frame(self.master)
@@ -142,6 +143,11 @@ class GUI:
     def create_menu_frame(self): #Main menu
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
+        frame.grid_rowconfigure(2, weight=1)
+        frame.grid_rowconfigure(3, weight=1)
+        frame.grid_rowconfigure(4, weight=1)
+        frame.grid_rowconfigure(5, weight=1)
+        frame.grid_columnconfigure(0, weight=1)        
         
         #Menu heading
         self.heading = Label(frame, text="RePT", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
@@ -173,6 +179,9 @@ class GUI:
         #Create frame
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
+        frame.grid_rowconfigure(6, weight=1)
+        frame.grid_columnconfigure(1, weight=1) 
+        frame.grid_columnconfigure(3, weight=1)           
         
         #Search heading
         self.search_heading = Label(frame, text="Search", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
@@ -194,7 +203,7 @@ class GUI:
         self.v_search_box.grid(row=2, column=1, sticky="ew")
         
         self.v_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.v_search(self.v_search_box.get().upper()))
-        self.v_search_button.grid(row=2, column=2)
+        self.v_search_button.grid(row=2, column=2, padx=10, pady=5)
         
         #Route search (label, box, and button)
         self.r_search_label = Label(frame, text="Route:", fg="#406978", font=FONT["Button"])
@@ -204,7 +213,7 @@ class GUI:
         self.r_search_box.grid(row=3, column=1, sticky="ew")
         
         self.r_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.r_search(self.r_search_box.get()))
-        self.r_search_button.grid(row=3, column=2)
+        self.r_search_button.grid(row=3, column=2, pady=5)
         
         #Date search (label, box, and button)
         self.d_search_label = Label(frame, text="Date:", fg="#406978", font=FONT["Button"])
@@ -214,7 +223,7 @@ class GUI:
         self.d_search_box.grid(row=4, column=1, sticky="ew")
         
         self.d_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.d_search(self.d_search_box.get()))
-        self.d_search_button.grid(row=4, column=2)            
+        self.d_search_button.grid(row=4, column=2, pady=5)            
         
         #ID search (label, box, and button)
         self.i_search_label = Label(frame, text="Service ID:", fg="#406978", font=FONT["Button"])
@@ -224,7 +233,7 @@ class GUI:
         self.i_search_box.grid(row=5, column=1, sticky="ew")
         
         self.i_search_button = Button(frame, text="Search", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.i_search(self.i_search_box.get()))
-        self.i_search_button.grid(row=5, column=2)            
+        self.i_search_button.grid(row=5, column=2, pady=5)            
         
         #Results
         self.search_results = Label(frame, text="Results will appear here", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Text"], highlightbackground="black", highlightthickness=1)
@@ -234,7 +243,10 @@ class GUI:
     
     def create_log_frame(self): #Save trips
         frame = Frame(self.container)
-        frame.grid(row=0, column=0, sticky="nsew")
+        frame.grid(row=0, column=0, sticky="nsew")   
+        frame.grid_columnconfigure(0, weight=1)   
+        frame.grid_columnconfigure(1, weight=1)   
+        frame.grid_columnconfigure(2, weight=1) 
         
         #Log Header
         self.log_heading = Label(frame, text="Log trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
@@ -270,11 +282,11 @@ class GUI:
         
         #Log button
         self.log_button = Button(frame, text="Log", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.log_trip(self.v_log_box.get().upper(), self.r_log_box.get(), self.d_log_box.get()))
-        self.log_button.grid(row=5, column=1)
+        self.log_button.grid(row=5, column=0, columnspan=3)
         
         #Save button
         self.save_log_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
-        self.save_log_button.grid(row=6, column=1)        
+        self.save_log_button.grid(row=6, column=0, columnspan=3)        
         
         #Message box
         self.message_log = Label(frame, text="", fg="#406978", font=FONT["Button"])
@@ -285,6 +297,9 @@ class GUI:
     def create_edit_frame(self): #Edit existing trips
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
+        frame.grid_columnconfigure(0, weight=1)   
+        frame.grid_columnconfigure(1, weight=1)   
+        frame.grid_columnconfigure(2, weight=1)         
         
         #Log Header
         self.edit_heading = Label(frame, text="Edit trips", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
@@ -328,15 +343,15 @@ class GUI:
         
         #Edit button
         self.edit_button = Button(frame, text="Edit", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.edit_trip(self.i_edit_box.get(), self.v_edit_box.get().upper(), self.r_edit_box.get(), self.d_edit_box.get()))
-        self.edit_button.grid(row=6, column=1)
+        self.edit_button.grid(row=6, column=0, columnspan=3)
         
         #Delete button
         self.delete_button = Button(frame, text="Delete", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.delete_trip(self.i_edit_box.get()))
-        self.delete_button.grid(row=7, column=1)        
+        self.delete_button.grid(row=7, column=0, columnspan=3)        
         
         #Save button
         self.save_edit_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
-        self.save_edit_button.grid(row=8, column=1)        
+        self.save_edit_button.grid(row=8, column=0, columnspan=3)        
         
         #Message box
         self.message_edit = Label(frame, text="", fg="#406978", font=FONT["Button"])
@@ -347,6 +362,9 @@ class GUI:
     def create_settings_frame(self):
         frame = Frame(self.container)
         frame.grid(row=0, column=0, sticky="nsew")
+        frame.grid_columnconfigure(0, weight=1)   
+        frame.grid_columnconfigure(1, weight=1)   
+        frame.grid_columnconfigure(2, weight=1)            
         
         #Settings Header
         self.settings_heading = Label(frame, text="Settings", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
@@ -404,7 +422,7 @@ class GUI:
         
         #Save button
         self.settings_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.update_settings(self.theme_box.get(), self.source_box.get(), self.vehicle_box.get(), self.route_box.get(), self.date_box.get()))
-        self.settings_button.grid(row=8, column=1)     
+        self.settings_button.grid(row=8, column=0, columnspan=3)     
         
         #Message box
         self.message_settings = Label(frame, text="", fg="#406978", font=FONT["Button"])

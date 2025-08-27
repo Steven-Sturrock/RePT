@@ -26,6 +26,7 @@ V3.0.4 - Validation improvements, autofill, and LNER theme
 V3.0.5 - Minor fixes
 V4.0.0 - Many more themes
 V4.1.0 - Scaling
+V4.1.1 - Minor tweaks to scaling
 '''
 
 #Libraries
@@ -117,13 +118,13 @@ class GUI:
         self.master.title("RePT")
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
-        #self.master.resizable(0,0)
+        self.master.minsize(600, 350)
         
         #Create container
         self.container = Frame(self.master)
         self.container.grid(row=0, column=0, sticky="nsew")
         self.container.grid_rowconfigure(0, weight=1)
-        self.container.grid_columnconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)     
         
         #Create frames dictionary
         self.frames = {}
@@ -147,7 +148,7 @@ class GUI:
         frame.grid_rowconfigure(3, weight=1)
         frame.grid_rowconfigure(4, weight=1)
         frame.grid_rowconfigure(5, weight=1)
-        frame.grid_columnconfigure(0, weight=1)        
+        frame.grid_columnconfigure(0, weight=1)       
         
         #Menu heading
         self.heading = Label(frame, text="RePT", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)

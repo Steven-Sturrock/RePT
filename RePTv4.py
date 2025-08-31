@@ -27,6 +27,7 @@ V3.0.5 - Minor fixes
 V4.0.0 - Many more themes
 V4.1.0 - Scaling
 V4.1.1 - Minor tweaks to scaling
+V4.1.2 - Minor changes
 '''
 
 #Libraries
@@ -118,7 +119,8 @@ class GUI:
         self.master.title("RePT")
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
-        self.master.minsize(600, 350)
+        self.master.geometry("610x375")
+        self.master.minsize(610, 375)
         
         #Create container
         self.container = Frame(self.master)

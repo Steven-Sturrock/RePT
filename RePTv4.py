@@ -28,6 +28,7 @@ V4.0.0 - Many more themes
 V4.1.0 - Scaling
 V4.1.1 - Minor tweaks to scaling
 V4.1.2 - Minor changes
+V4.1.3 - Bug fixes
 '''
 
 #Libraries
@@ -288,7 +289,7 @@ class GUI:
         self.log_button.grid(row=5, column=0, columnspan=3)
         
         #Save button
-        self.save_log_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
+        self.save_log_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save(self.message_log))
         self.save_log_button.grid(row=6, column=0, columnspan=3)        
         
         #Message box
@@ -353,7 +354,7 @@ class GUI:
         self.delete_button.grid(row=7, column=0, columnspan=3)        
         
         #Save button
-        self.save_edit_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save())
+        self.save_edit_button = Button(frame, text="Save", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.save(self.message_edit))
         self.save_edit_button.grid(row=8, column=0, columnspan=3)        
         
         #Message box
@@ -512,14 +513,14 @@ class GUI:
         else:
             self.message_log.configure(text="Invalid trip details")
             
-    def save(self):
+    def save(self, message):
         with open(SOURCE, "w", newline='') as  tripfile: #Export trips to CSV file
             fields = [VEHICLE, ROUTE, DATE]
             export = csv.DictWriter(tripfile, fieldnames=fields)
             export.writeheader()
             for i in trips:
                 export.writerow({fields[0]:i.vehicle, fields[1]:i.route, fields[2]:i.date}) #Write each trip to file
-            self.message_log.configure(text="Saved to file")
+            message.configure(text="Saved to file")
             
     def edit_trip(self, ID, vehicle, route, date): #Updates trip details
         try:

@@ -30,6 +30,7 @@ V4.1.1 - Minor tweaks to scaling
 V4.1.2 - Minor changes
 V4.1.3 - Bug fixes
 V4.2.0 - Scrollbars, unrefined
+V4.2.1 - Bug fixes
 '''
 
 #Libraries
@@ -493,7 +494,7 @@ class GUI:
                 self.search_results.insert(END, "No trip with this ID found")
             else:
                 self.search_subheading.configure(text=f"Trip {search}")
-                for o in trips[int(search)].ID_search():
+                for o in trips[int(search)-1].ID_search():
                     self.search_results.insert(END, o)
         except ValueError: #Error handling if non integer is entered
             self.search_subheading.configure(text="Invalid input")

@@ -29,6 +29,7 @@ V4.1.0 - Scaling
 V4.1.1 - Minor tweaks to scaling
 V4.1.2 - Minor changes
 V4.1.3 - Bug fixes
+V4.2.0 - Scrollbars, unrefined
 '''
 
 #Libraries
@@ -79,7 +80,7 @@ class Trip:
         
     #Print all vehicle data
     def __str__(self):
-        return f"Vehicle: {self.vehicle}\nRoute: {self.route}\nDate: {self.date}"
+        return [f"Vehicle: {self.vehicle}", f"Route: {self.route}", f"Date: {self.date}"]
     
     #Check if search term is equal to self.vehicle and return data if true
     def vehicle_search(self, search, ID):
@@ -101,6 +102,9 @@ class Trip:
             return f"{self.vehicle} - {self.route} - ID:{ID}"
         else:
             return None
+        
+    def ID_search(self):
+        return [f"Vehicle: {self.vehicle}", f"Route: {self.route}", f"Date: {self.date}"]
 
 #Load data from file
 try:
@@ -120,8 +124,8 @@ class GUI:
         self.master.title("RePT")
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
-        self.master.geometry("610x375")
-        self.master.minsize(610, 375)
+        self.master.geometry("650x375")
+        self.master.minsize(650, 375)
         
         #Create container
         self.container = Frame(self.master)
@@ -189,11 +193,11 @@ class GUI:
         
         #Search heading
         self.search_heading = Label(frame, text="Search", bg=HEADING[THEME], fg=HEADINGTEXT[THEME], font=FONT["Heading"], width=20)
-        self.search_heading.grid(row=0, column=0, columnspan = 4, sticky="nsew")
+        self.search_heading.grid(row=0, column=0, columnspan = 5, sticky="nsew")
         
         #Search subheading
         self.search_subheading = Label(frame, text="", bg=SUBHEADING[THEME], fg=SUBHEADINGTEXT[THEME], font=FONT["Subheading"])
-        self.search_subheading.grid(row=1, column=3, sticky="nsew")
+        self.search_subheading.grid(row=1, column=3, sticky="nsew", columnspan = 2)
         
         #Back button
         self.search_back_button = Button(frame, text="Back", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Button"], width=5, command=lambda: self.show_window("MenuFrame"))
@@ -240,8 +244,13 @@ class GUI:
         self.i_search_button.grid(row=5, column=2, pady=5)            
         
         #Results
-        self.search_results = Label(frame, text="Results will appear here", bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Text"], highlightbackground="black", highlightthickness=1)
+        self.search_results = Listbox(frame, bg=BUTTON[THEME], fg=BUTTONTEXT[THEME], font=FONT["Text"], highlightbackground="black", highlightthickness=1, justify="center")
         self.search_results.grid(row=2, column=3, sticky="nsew", rowspan=5)        
+        
+        self.search_results_scroll = Scrollbar(frame, command = self.search_results.yview)
+        self.search_results_scroll.grid(row=2, column=4, sticky="ns", rowspan=5)
+        
+        self.search_results.config(yscrollcommand=self.search_results_scroll.set)
         
         return frame
     
@@ -440,10 +449,10 @@ class GUI:
         for i in range(len(trips)):
             if trips[i].vehicle_search(search, i + 1) != None:
                 results.append(trips[i].vehicle_search(search, i + 1))
-        output = f"{len(results)} trip(s) on {search}"
-        for o in range(len(results)): #Combine all results into a single string
-            output += f"\n{str(results[o])}"
-        self.search_results.configure(text=(output))
+        self.search_results.delete(0, END)
+        self.search_results.insert(END, f"{len(results)} trip(s) on {search}")
+        for o in results: #Combine all results into a single string
+            self.search_results.insert(END, o)
         
     def r_search(self, search): #Search for routes in trips list
         self.search_subheading.configure(text=f"Trips on {search}")
@@ -451,40 +460,44 @@ class GUI:
         for i in range(len(trips)):
             if trips[i].route_search(search, i + 1) != None:
                 results.append(trips[i].route_search(search, i + 1))
-        output = f"{len(results)} trip(s) on {search}"
-        for o in range(len(results)): #Combine all results into a single string
-            output += f"\n{str(results[o])}"
-        self.search_results.configure(text=(output))    
+        self.search_results.delete(0, END)
+        self.search_results.insert(END, f"{len(results)} trip(s) on {search}")
+        for o in results: #Combine all results into a single string
+            self.search_results.insert(END, o)   
         
     def d_search(self, search): #Search for date in trips list
+        self.search_results.delete(0, END)
         if self.date_check(search) == True:
             self.search_subheading.configure(text=f"Trips on {search}")
             results = []
             for i in range(len(trips)):
                 if trips[i].date_search(search, i + 1) != None:
                     results.append(trips[i].date_search(search, i + 1))
-            output = f"{len(results)} trip(s) on {search}"
-            for o in range(len(results)): #Combine all results into a single string
-                output += f"\n{str(results[o])}"
-            self.search_results.configure(text=(output))
+            self.search_results.insert(END, f"{len(results)} trip(s) on {search}")
+            for o in results: #Combine all results into a single string
+                self.search_results.insert(END, o)
         else:
             self.search_subheading.configure(text="Invalid Date")
-            self.search_results.configure(text=self.date_check(search))
+            output = self.date_check(search).split("\n")
+            for o in output:
+                self.search_results.insert(END, o)
         
     def i_search(self, search): #Find specific trip with ID
+        self.search_results.delete(0, END)
         try:
             if int(search) <= 0: #Error handling if zero or negative is entered
                 self.search_subheading.configure(text="Invalid input")
-                self.search_results.configure(text="Please enter a number greater than zero") 
+                self.search_results.insert(END, "Please enter a number greater than zero") 
             elif int(search) > len(trips): #Error handling if number is greater than max service ID
                 self.search_subheading.configure(text="Trip not found")
-                self.search_results.configure(text="No trip with this ID found")
+                self.search_results.insert(END, "No trip with this ID found")
             else:
                 self.search_subheading.configure(text=f"Trip {search}")
-                self.search_results.configure(text=trips[int(search)-1])
+                for o in trips[int(search)].ID_search():
+                    self.search_results.insert(END, o)
         except ValueError: #Error handling if non integer is entered
             self.search_subheading.configure(text="Invalid input")
-            self.search_results.configure(text="Please enter a whole number")
+            self.search_results.insert(END, "Please enter a whole number")
             
     def date_check(self, date): #Check if the date is formatted correctly and not in the future
         try:

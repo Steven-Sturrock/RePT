@@ -146,6 +146,7 @@ class GUI:
     def show_window(self, name):
         self.frame = self.frames[name] #Select the frame
         self.frame.tkraise() #Move frame to top
+        self.message_settings.configure(text="") # Clears status box of settings page when user goes back to main menu
         
     def create_menu_frame(self): #Main menu
         frame = Frame(self.container)
@@ -571,7 +572,33 @@ class GUI:
             config = {"THEME":theme, "SOURCE":source, "VEHICLE":vehicle, "ROUTE":route, "DATE":date}
             with open("config.json", "w") as f:
                 json.dump(config, f, indent=2)
-            self.message_settings.configure(text="Relaunch required")
+                
+            #Load theme and details in comboboxes and label widgets from the newly edited config file
+            with open("config.json", "r") as f:
+                config = json.load(f)
+                
+                # I have no idea how making all the variables global makes it work correctly
+                global THEME 
+                global SOURCE
+                global ROUTE
+                global VEHICLE
+                global DATE
+                
+                # Sets variables, which will be used when regenerating frames in next section
+                THEME = config["THEME"]
+                SOURCE = config["SOURCE"]
+                ROUTE = config["ROUTE"]
+                VEHICLE = config["VEHICLE"]
+                DATE = config["DATE"]            
+                
+                # Regenerates frame due to new THEME variable, which will apply the theme to all other frames
+                self.frames["MenuFrame"] = self.create_menu_frame()
+                self.frames["SearchFrame"] = self.create_search_frame()
+                self.frames["LogFrame"] = self.create_log_frame()
+                self.frames["EditFrame"] = self.create_edit_frame()
+                self.frames["SettingsFrame"] = self.create_settings_frame()            
+            
+                self.message_settings.configure(text="New theme applied, other settings require a restart to take effect")
             
     def autofill_edit(self, ID): #Autofills boxes in editing menu
         self.v_edit_box.delete(0, 'end')

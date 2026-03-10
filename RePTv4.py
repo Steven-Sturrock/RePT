@@ -32,6 +32,7 @@ V4.1.3 - Bug fixes
 V4.2.0 - Scrollbars, unrefined
 V4.2.1 - Bug fixes
 V4.2.2 - Efficiency improvements and minor tweaks
+V4.2.3 - Fixed invalid date error when searching for trips in previous years
 '''
 
 #Libraries
@@ -506,7 +507,7 @@ class GUI:
                 return("Date can't be in the future")
             elif int(y) == Y and int(m) > M:
                 return("Date can't be in the future")
-            elif int(m) == M and int(d) > D:
+            elif int(y) == Y and int(m) == M and int(d) > D:
                 return("Date can't be in the future")
             elif len(date) != 10:
                 return("Invalid date format\nPlease use DD/MM/YYYY")
